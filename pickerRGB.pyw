@@ -1,21 +1,21 @@
 import tkinter as tk
 
-class EditorRGB(object):
-    def __init__(self, janela):
-        self.janela = janela
-        self.frame = tk.Frame(janela)
+class PickerRGB(object):
+    def __init__(self, parent):
+        self.parent = parent
+        self.frame = tk.Frame(parent)
         self.frame1 = tk.Frame(self.frame)
         self.frame2 = tk.Frame(self.frame)
         self.frame3 = tk.Frame(self.frame)
         self.frame4 = tk.Frame(self.frame)
         self.frame5 = tk.Frame(self.frame)
 
-        self.valorVermelho = tk.IntVar()
-        self.valorVerde = tk.IntVar()
-        self.valorAzul = tk.IntVar()
-        self.valorRGB = tk.StringVar()
+        self.redValue = tk.IntVar()
+        self.greenValue = tk.IntVar()
+        self.blueValue = tk.IntVar()
+        self.rgbValue = tk.StringVar()
 
-        #Label:
+        #Labels:
         self.label_red = tk.Label(self.frame1,text = "Red:")
         self.label_green = tk.Label(self.frame2, text = "Green:")
         self.label_blue = tk.Label(self.frame3, text = "Blue:")
@@ -23,32 +23,32 @@ class EditorRGB(object):
         self.label_rgb_G = tk.Label(self.frame4, text = "G")
         self.label_rgb_B = tk.Label(self.frame4, text = "B:")
     
-        #Scale:
+        #Scales:
         self.scale_red = tk.Scale(self.frame1,
                                   from_ = 0, to = 100,
                                   orient = tk.HORIZONTAL,
-                                  variable = self.valorVermelho,
-                                  command = self._mudarCor,)
+                                  variable = self.redValue,
+                                  command = self._changeColor,)
         
         self.scale_green = tk.Scale(self.frame2,
                                     from_ = 0, to = 100,
                                     orient = tk.HORIZONTAL,
-                                    variable = self.valorVerde,
-                                    command = self._mudarCor)
+                                    variable = self.greenValue,
+                                    command = self._changeColor)
         
         self.scale_blue = tk.Scale(self.frame3,
                                    from_ = 0, to = 100,
                                    orient = tk.HORIZONTAL,
-                                   variable = self.valorAzul,
-                                   command = self._mudarCor)
+                                   variable = self.blueValue,
+                                   command = self._changeColor)
         
-        #Entry:
+        #Entries:
         self.entry_red = tk.Entry(self.frame1)
         self.entry_green = tk.Entry(self.frame2)
         self.entry_blue = tk.Entry(self.frame3)
         self.entry_rgb = tk.Entry(self.frame4,
                                   bd= 0,
-                                  textvariable = self.valorRGB,
+                                  textvariable = self.rgbValue,
                                   width = 9)
 
         
@@ -56,19 +56,21 @@ class EditorRGB(object):
         #Canvas:
         self.canvas = tk.Canvas(self.frame5)
         
-        #### Conectando Eventos: ####
+        #### Binding the events ####
         
-        self.entry_red.bind('<Return>', self._setEntradaRed)
-        self.entry_green.bind('<Return>', self._setEntradaGreen)
-        self.entry_blue.bind('<Return>', self._setEntradaBlue)
-        self.entry_rgb.bind('<Return>', self._setEntradaRGB)
+        self.entry_red.bind('<Return>', self._setEntryRed)
+        self.entry_green.bind('<Return>', self._setEntryGreen)
+        self.entry_blue.bind('<Return>', self._setEntryBlue)
+        self.entry_rgb.bind('<Return>', self._setEntryRGB)
 
-        self._formatar()
+        ### Seting widgets formatation ###
+        self._formatWidgets()
         
-        ### Empacotando objetos: ###
+        ### Packing ###
         self.label_red.pack(side = tk.LEFT)
         self.label_green.pack(side = tk.LEFT)
         self.label_blue.pack(side = tk.LEFT)
+
         self.label_rgb_R.pack(side = tk.LEFT)
         self.label_rgb_G.pack(side = tk.LEFT)
         self.label_rgb_B.pack(side = tk.LEFT)
@@ -93,7 +95,8 @@ class EditorRGB(object):
 
 
 
-    def _mudarCor(self, event):
+    def _changeColor(self, event):
+        """Change the canva color according to the scales inputs (and also update the entries inputs)"""
         self.red = (hex(self.scale_red.get()).split('x'))[1]
         self.green = (hex(self.scale_green.get()).split)('x')[1]
         self.blue = (hex(self.scale_blue.get()).split('x'))[1]
@@ -107,48 +110,53 @@ class EditorRGB(object):
         
         self.rgb = "#"+self.red+self.green+self.blue
         self.canvas['bg'] = self.rgb
-        self._atualizarEntradas(event)
+        self._updateEntries(event)
 
-    def _atualizarEntradas(self, event):
-        self.len_EntradaRGB = len(self.entry_rgb.get())
-        self.entry_rgb.delete(0, last= self.len_EntradaRGB)
+    def _updateEntries(self, event):
+        """Update the entries inputs according to the scales inputs"""
+        self.len_inputRGB = len(self.entry_rgb.get())
+        self.entry_rgb.delete(0, last= self.len_inputRGB)
         self.entry_rgb.insert(0, self.rgb)
 
-        self.len_EntradaRed = len(self.entry_red.get())
-        self.entry_red.delete(0, last= self.len_EntradaRed)
+        self.len_inputRed = len(self.entry_red.get())
+        self.entry_red.delete(0, last= self.len_inputRed)
         self.entry_red.insert(0, self.scale_red.get())
 
-        self.len_EntradaGreen = len(self.entry_green.get())
-        self.entry_green.delete(0, last= self.len_EntradaGreen)
+        self.len_inputGreen = len(self.entry_green.get())
+        self.entry_green.delete(0, last= self.len_inputGreen)
         self.entry_green.insert(0, self.scale_green.get())
         
-        self.len_EntradaBlue = len(self.entry_blue.get())
-        self.entry_blue.delete(0, last= self.len_EntradaBlue)
+        self.len_inputBlue = len(self.entry_blue.get())
+        self.entry_blue.delete(0, last= self.len_inputBlue)
         self.entry_blue.insert(0, self.scale_blue.get())
 
-    def _setEntradaRed(self, event):
-        self.entradaRed = int(self.entry_red.get())
-        self.scale_red.set(self.entradaRed)
+    def _setEntryRed(self, event):
+        """Update the scale red input according to the entry red input"""
+        self.inputRed = int(self.entry_red.get())
+        self.scale_red.set(self.inputRed)
         
-    def _setEntradaGreen(self, event):
-        self.entradaGreen = int(self.entry_green.get())
-        self.scale_green.set(self.entradaGreen)
+    def _setEntryGreen(self, event):
+        """Update the scale green input according to the entry green input"""
+        self.inputGreen = int(self.entry_green.get())
+        self.scale_green.set(self.inputGreen)
         
-    def _setEntradaBlue(self, event):
-        self.entradaBlue = int(self.entry_blue.get())
-        self.scale_blue.set(self.entradaBlue)
+    def _setEntryBlue(self, event):
+        """Update the scale blue input according to the entry blue input"""
+        self.inputBlue = int(self.entry_blue.get())
+        self.scale_blue.set(self.inputBlue)
         
-    def _setEntradaRGB(self, event):
-        self.entradaRGB = self.entry_rgb.get()
-        self.entradaRed = self.entradaRGB[1:3]
-        self.entradaGreen = self.entradaRGB[3:5]
-        self.entradaBlue = self.entradaRGB[5:7]
+    def _setEntryRGB(self, event):
+        """Update the scales inputs according to the entry RGB input"""
+        self.inputRGB = self.entry_rgb.get()
+        self.inputRed = self.inputRGB[1:3]
+        self.inputGreen = self.inputRGB[3:5]
+        self.inputBlue = self.inputRGB[5:7]
         
-        self.scale_red.set(self.entradaRed)
-        self.scale_green.set(self.entradaGreen)
-        self.scale_blue.set(self.entradaBlue)
+        self.scale_red.set(self.inputRed)
+        self.scale_green.set(self.inputGreen)
+        self.scale_blue.set(self.inputBlue)
 
-    def _formatar(self, larguraCanvas = 400):
+    def _formatWidgets(self, widthCanvas = 400):
         self.frame['bg'] = self.frame1['bg'] = self.frame2['bg'] = self.frame3['bg'] = self.frame4['bg'] = "white"
         #self.frame1['anchor'] = self.frame2['anchor'] = self.frame3['anchor'] = self.frame4['anchor'] = "nw"
         self.frame5['bg'] = "gray"
@@ -156,7 +164,7 @@ class EditorRGB(object):
         self.frame4['pady'] = 10; self.frame4['padx'] = 3
         self.frame['pady'] = 20; self.frame['padx'] = 80
 
-        self.canvas['width'] = self.canvas['height'] = larguraCanvas
+        self.canvas['width'] = self.canvas['height'] = widthCanvas
         self.canvas['bd'] = 3
         self.canvas['bg'] = "#000"
         
@@ -180,10 +188,10 @@ class EditorRGB(object):
         
         
 if __name__ == "__main__":
-    janela = tk.Tk()
-    janela.title("Editor RGB")
-    EditorRGB(janela)
-    janela.mainloop()
+    window = tk.Tk()
+    window.title("RGB Color Picker")
+    PickerRGB(window)
+    window.mainloop()
 
 
         
